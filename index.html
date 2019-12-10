@@ -1,4 +1,4 @@
-<!doctype html> 
+<!doctype html>
 <html>
 <head>
 	<title>Agar.io UCSLP 2019</title>
@@ -17,9 +17,9 @@
 	var yo = 'ivan';
 	var datos = {
 		nom: 'ivan',
-		tam: 10,
+		tam: 18,
 		pos: [Math.random() * 800, Math.random() * 800],
-		col: 'green'
+		col: 'yellow'
 	};
 	var url = 'http://ucslpcontenidos-agario.herokuapp.com/';
 	function tecla(e) {
@@ -43,10 +43,34 @@
 		ctx.beginPath();
 		ctx.arc(d.pos[0] + c.width / 2 - datos.pos[0],
 			d.pos[1] + c.height / 2 - datos.pos[1],
-			d.tam * 10,
+			d.tam * 3,
 			0, 2 * Math.PI);
 		ctx.fillStyle = d.col;
 		ctx.fill();
+	}
+	function colisiones() {
+		for (var i = 0; i < jugadores.length; i++) {
+			if (jugadores[i].nom !== datos.nom) {
+			var x = datos.pos[0]-jugadores[i].pos[0];
+			var y = datos.pos[1]-jugadores[i].pos[1];
+			var d = Math.sqrt (x * x + y * y);
+			if (d <= (jugadores[i].tam + datos.tam) * 2) {
+				$.get(url + '?' + $.param({
+					eliminarJugador: JSON.stringify([
+						datos.nom,jugadores[i].nom
+					])
+				}));
+				if (datos.tam < jugadores[i].tam) {
+					datos = {
+						nom: 'ivan',
+						tam: 18,
+						pos: [Math.random() * 800, Math.random() * 800],
+						col: 'yellow'
+						};
+					}
+				}
+		  }
+		}
 	}
 	function dibujar() {
 		if (jugadores === null)
@@ -63,6 +87,7 @@
 				circulo(c, ctx, jugadores[i]);
 			}
 		}
+		colisiones();
 	}
 	function exito(t) {
 		jugadores = t[0];
@@ -70,12 +95,13 @@
 		actualizar();
 	}
 	setInterval(dibujar, 100);
-	(function actualizar() {
+	function actualizar() {
 			$.get(url + '?' + $.param({
 				jugador: JSON.stringify(datos),
 				ale: Math.random()
 			}), exito);
-	})();
+	};
+	actualizar();
 </script>
 </body>
 </html>
