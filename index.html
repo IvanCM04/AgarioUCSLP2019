@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+	<title>Agar.io UCSLP 2019</title>
+</head>
+<body background="cuadricula.jpg">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  	<nav class="navbar navbar-light" style="background-color: #33D4FF;">
+    		<a class="navbar-brand" href="#"><img src="https://twemoji.maxcdn.com/v/12.1.4/svg/1f9ea.svg"width="35" height="35" class="emoji"alt=""> Agar.io 2019 <img src="https://twemoji.maxcdn.com/v/12.1.4/svg/1f9ec.svg"width="35" height="35" class="emoji"alt=""> </a>v 5.5
+  	</nav>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+<canvas id="pantalla" width="1800" height="900"></canvas>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script>
+	var powerups = null;
+	var jugadores = null;
+	var yo = 'ivan';
+	var datos = {
+		nom: 'ivan',
+		tam: 10,
+		pos: [Math.random() * 800, Math.random() * 800],
+		col: 'blue'
+	};
+	var url = 'http://ucslpcontenidos-agario.herokuapp.com/';
+	function tecla(e) {
+		switch (e.keyCode) {
+			case 38:
+				datos.pos[1] -= 10;
+				break;
+			case 40:
+				datos.pos[1] += 10;
+				break;
+			case 39:
+				datos.pos[0] += 10;
+				break;
+			case 37:
+				datos.pos[0] -= 10;
+				break;
+		}
+	}
+	$('body').keydown(tecla);
+	function circulo(c, ctx, d) {
+		ctx.beginPath();
+		ctx.arc(d.pos[0] + c.width / 2 - datos.pos[0],
+			d.pos[1] + c.height / 2 - datos.pos[1],
+			d.tam * 10,
+			0, 2 * Math.PI);
+		ctx.fillStyle = d.col;
+		ctx.fill();
+	}
+	function dibujar() {
+		if (jugadores === null)
+			return;
+		var c = $('#pantalla')[0];
+		var ctx = c.getContext('2d');
+		ctx.clearRect(0, 0, c.width, c.height);
+		circulo(c, ctx, datos);
+		for (var i = 0; i < powerups.length; i++) {
+			circulo(c, ctx, powerups[i]);
+		}
+		for (var i = 0; i < jugadores.length; i++) {
+			if (jugadores[i].nom !== yo) {
+				circulo(c, ctx, jugadores[i]);
+			}
+		}
+	}
+	function exito(t) {
+		jugadores = t[0];
+		powerups = t[1];
+		actualizar();
+	}
+	setInterval(dibujar, 100);
+	(function actualizar() {
+			$.get(url + '?' + $.param({
+				jugador: JSON.stringify(datos),
+				ale: Math.random()
+			}), exito);
+	})();
+</script>
+</body>
+</html>
